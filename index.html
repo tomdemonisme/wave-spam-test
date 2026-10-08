@@ -1,0 +1,2094 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Geometry Dash Wave Spam Test</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+}
+
+body{
+    background:#080b12;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+
+.app-container{
+    width:980px;
+    background:#131825;
+    padding:22px;
+    border-radius:14px;
+    border:2px solid #202b42;
+    box-shadow:0 15px 50px rgba(0,0,0,.85);
+}
+
+h1{
+    text-align:center;
+    color:#00ffcc;
+    font-size:19px;
+    letter-spacing:2px;
+    margin-bottom:14px;
+}
+
+.stats-bar{
+    display:flex;
+    justify-content:space-between;
+    background:#1b2234;
+    border:1px solid #2b3853;
+    border-radius:9px;
+    padding:10px 20px;
+    margin-bottom:14px;
+}
+
+.stat-item{
+    text-align:center;
+    min-width:150px;
+}
+
+.stat-label{
+    color:#8b9bb4;
+    font-size:10px;
+    text-transform:uppercase;
+}
+
+.stat-value{
+    color:white;
+    font-size:19px;
+    font-weight:bold;
+}
+
+.layout{
+    display:flex;
+    gap:16px;
+    margin-bottom:14px;
+}
+
+.game-canvas-wrapper{
+    width:650px;
+    height:300px;
+    background:#03060b;
+    border:3px solid #00ffcc;
+    border-radius:7px;
+    overflow:hidden;
+}
+
+#gameCanvas{
+    width:650px;
+    height:300px;
+    display:block;
+}
+
+.sidebar{
+    width:270px;
+    background:#182030;
+    border:1px solid #2b3853;
+    border-radius:9px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+
+.sidebar label{
+    color:#8b9bb4;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.icon-selector{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    max-height:190px;
+    overflow-y:auto;
+    padding-right:3px;
+}
+
+.icon-selector::-webkit-scrollbar{
+    width:5px;
+}
+
+.icon-selector::-webkit-scrollbar-thumb{
+    background:#40506e;
+    border-radius:5px;
+}
+
+.icon-btn{
+    height:43px;
+    background:#222d44;
+    border:2px solid #354563;
+    border-radius:6px;
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+}
+
+.icon-btn:hover{
+    border-color:#8b5cf6;
+}
+
+.icon-btn.active{
+    background:#113f38;
+    border-color:#00ffcc;
+}
+
+.icon-btn canvas{
+    width:35px;
+    height:35px;
+    background:transparent;
+}
+
+.icon-number{
+    position:absolute;
+    right:2px;
+    bottom:1px;
+    font-size:7px;
+    color:#7585a0;
+}
+
+.color-wrapper{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+input[type="color"]{
+    width:30px;
+    height:30px;
+    border:none;
+    background:none;
+    cursor:pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper{
+    padding:0;
+}
+
+input[type="color"]::-webkit-color-swatch{
+    border:2px solid white;
+    border-radius:50%;
+}
+
+.btn-setting{
+    width:100%;
+    padding:11px;
+    background:#7c3aed;
+    border:none;
+    border-radius:7px;
+    color:white;
+    font-size:13px;
+    font-weight:bold;
+    cursor:pointer;
+    text-transform:uppercase;
+}
+
+.btn-setting:hover{
+    background:#8b5cf6;
+}
+
+#setting-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.82);
+    justify-content:center;
+    align-items:center;
+    z-index:100;
+}
+
+.modal-box{
+    width:480px;
+    background:#182030;
+    border:2px solid #7c3aed;
+    border-radius:11px;
+    padding:25px;
+}
+
+.modal-box h3{
+    color:#a78bfa;
+    text-align:center;
+    margin-bottom:16px;
+}
+
+.key-config-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#131825;
+    padding:10px;
+    border-radius:6px;
+    margin-bottom:10px;
+}
+
+.key-config-row span{
+    color:#8b9bb4;
+    font-size:12px;
+}
+
+.button-group{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.key-bind-btn{
+    background:#222d44;
+    color:#00ffcc;
+    border:1px solid #354563;
+    padding:7px 10px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:10px;
+}
+
+.key-bind-btn:hover{
+    border-color:#00ffcc;
+}
+
+.key-bind-btn.listening{
+    background:#7c3aed;
+    color:white;
+    border-color:#a78bfa;
+}
+
+.key-bind-btn.active{
+    background:#113f38;
+    color:#00ffcc;
+    border-color:#00ffcc;
+}
+
+.close-btn{
+    display:block;
+    margin:15px auto 0;
+    padding:7px 18px;
+    background:#ef4444;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+#custom-panel{
+    display:none;
+    position:fixed;
+    right:20px;
+    top:50%;
+    transform:translateY(-50%);
+    width:270px;
+    padding:15px;
+    background:#182030;
+    border:2px solid #8b5cf6;
+    border-radius:10px;
+    z-index:90;
+    box-shadow:0 10px 40px rgba(0,0,0,.8);
+}
+
+#custom-panel h3{
+    color:#c4b5fd;
+    margin-bottom:12px;
+    text-align:center;
+}
+
+.custom-row{
+    background:#131825;
+    padding:8px;
+    border-radius:6px;
+    margin-bottom:7px;
+}
+
+.custom-row label{
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:#aab6ca;
+    margin-bottom:5px;
+}
+
+.custom-row input[type="range"]{
+    width:100%;
+    accent-color:#8b5cf6;
+}
+
+.custom-color{
+    width:100% !important;
+    height:30px;
+}
+
+.custom-reset,
+.custom-close{
+    width:100%;
+    padding:8px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.custom-reset{
+    background:#222d44;
+    color:white;
+    border:1px solid #354563;
+}
+
+.custom-close{
+    margin-top:8px;
+    background:#ef4444;
+    color:white;
+    border:none;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+<h1>GEOMETRY DASH WAVE SPAM TEST</h1>
+
+<div class="stats-bar">
+
+<div class="stat-item">
+<div class="stat-label">CPS HIỆN TẠI</div>
+<div class="stat-value" id="cps-display">0.0</div>
+</div>
+
+<div class="stat-item">
+<div class="stat-label">TỔNG CLICK</div>
+<div class="stat-value" id="clicks-display">0</div>
+</div>
+
+</div>
+
+<div class="layout">
+
+<div class="game-canvas-wrapper">
+<canvas id="gameCanvas" width="650" height="300"></canvas>
+</div>
+
+<div class="sidebar">
+
+<label>CHỌN WAVE ICON (1 - 20)</label>
+
+<div class="icon-selector" id="waveSelector"></div>
+
+<label>MÀU SẮC WAVE</label>
+
+<div class="color-wrapper">
+
+<input
+type="color"
+id="colorPicker"
+value="#00ffcc">
+
+<span
+id="hexCode"
+style="font-size:11px;color:#8b9bb4">
+#00ffcc
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<button
+class="btn-setting"
+onclick="openSetting()">
+CÀI ĐẶT TRÒ CHƠI
+</button>
+
+</div>
+
+
+<div id="custom-panel">
+
+<h3>CUSTOM ICON</h3>
+
+<div class="custom-row">
+
+<label>
+SỐ CẠNH
+<span id="sideText">6</span>
+</label>
+
+<input
+id="sideRange"
+type="range"
+min="3"
+max="12"
+value="6">
+
+</div>
+
+<div class="custom-row">
+
+<label>
+ĐỘ NHỌN
+<span id="sharpText">50</span>
+</label>
+
+<input
+id="sharpRange"
+type="range"
+min="10"
+max="90"
+value="50">
+
+</div>
+
+<div class="custom-row">
+
+<label>
+KÍCH THƯỚC
+<span id="sizeText">1.0</span>
+</label>
+
+<input
+id="sizeRange"
+type="range"
+min="50"
+max="150"
+value="100">
+
+</div>
+
+<div class="custom-row">
+
+<label>
+XOAY
+<span id="rotateText">0°</span>
+</label>
+
+<input
+id="rotateRange"
+type="range"
+min="0"
+max="360"
+value="0">
+
+</div>
+
+<div class="custom-row">
+
+<label>MÀU CUSTOM</label>
+
+<input
+class="custom-color"
+type="color"
+id="customColor"
+value="#00ffcc">
+
+</div>
+
+<button
+class="custom-reset"
+onclick="resetCustom()">
+RESET
+</button>
+
+<button
+class="custom-close"
+onclick="closeCustom()">
+ĐÓNG
+</button>
+
+</div>
+
+
+<div id="setting-modal">
+
+<div class="modal-box">
+
+<h3>CÀI ĐẶT TRÒ CHƠI</h3>
+
+<div class="key-config-row">
+
+<span>Phím Điều Khiển 1:</span>
+
+<button
+class="key-bind-btn"
+id="bindBtn1"
+onclick="startListening(1)">
+SPACE
+</button>
+
+</div>
+
+<div class="key-config-row">
+
+<span>Phím Điều Khiển 2:</span>
+
+<button
+class="key-bind-btn"
+id="bindBtn2"
+onclick="startListening(2)">
+ARROW UP
+</button>
+
+</div>
+
+<div class="key-config-row">
+
+<span>Phím Điều Khiển 3:</span>
+
+<button
+class="key-bind-btn"
+id="bindBtn3"
+onclick="startListening(3)">
+W
+</button>
+
+</div>
+
+<div class="key-config-row">
+
+<span>Kích Thước Wave:</span>
+
+<div class="button-group">
+
+<button
+class="key-bind-btn active"
+id="sizeNormalBtn"
+onclick="setWaveSize('normal')">
+NORMAL
+</button>
+
+<button
+class="key-bind-btn"
+id="sizeMiniBtn"
+onclick="setWaveSize('mini')">
+MINI
+</button>
+
+</div>
+
+</div>
+
+<div class="key-config-row">
+
+<span>Gravity:</span>
+
+<div class="button-group">
+
+<button
+class="key-bind-btn active"
+id="gravityNormalBtn"
+onclick="setGravity('normal')">
+BÌNH THƯỜNG
+</button>
+
+<button
+class="key-bind-btn"
+id="gravityReverseBtn"
+onclick="setGravity('reverse')">
+NGƯỢC
+</button>
+
+</div>
+
+</div>
+
+<div class="key-config-row">
+
+<span>Speed:</span>
+
+<div
+class="button-group"
+id="speedButtons">
+
+<button
+class="key-bind-btn"
+onclick="setSpeed(.5,this)">
+0.5x
+</button>
+
+<button
+class="key-bind-btn active"
+onclick="setSpeed(1,this)">
+1x
+</button>
+
+<button
+class="key-bind-btn"
+onclick="setSpeed(1.5,this)">
+1.5x
+</button>
+
+<button
+class="key-bind-btn"
+onclick="setSpeed(2,this)">
+2x
+</button>
+
+<button
+class="key-bind-btn"
+onclick="setSpeed(3,this)">
+3x
+</button>
+
+</div>
+
+</div>
+
+<button
+class="close-btn"
+onclick="closeSetting()">
+Đóng
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+const canvas =
+document.getElementById("gameCanvas");
+
+const ctx =
+canvas.getContext("2d");
+
+const WIDTH = 650;
+const HEIGHT = 300;
+
+
+/* =====================================================
+   WAVE
+===================================================== */
+
+const waveX = 150;
+
+let waveY = 150;
+
+let currentWaveType = 1;
+
+let isMiniWave = false;
+
+let reverseGravity = false;
+
+let gameSpeed = 1;
+
+let playerColor = "#00ffcc";
+
+
+/* =====================================================
+   KEYS
+===================================================== */
+
+let key1 = "Space";
+let key2 = "ArrowUp";
+let key3 = "KeyW";
+
+let isPressing1 = false;
+let isPressing2 = false;
+let isPressing3 = false;
+
+let listeningSlot = null;
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+let totalClicks = 0;
+let clickTimestamps = [];
+
+
+/* =====================================================
+   ANGLES
+===================================================== */
+
+const NORMAL_ANGLE = Math.PI / 4;
+const MINI_ANGLE = Math.PI / 3;
+
+
+/* =====================================================
+   TRAIL
+===================================================== */
+
+const TRAIL_LENGTH = 120;
+const TRAIL_REMOVE_X = -400;
+
+let trailPoints = [];
+
+
+/* =====================================================
+   ICON SHAPES
+===================================================== */
+
+const waveShapes = [
+
+[
+[-15,-9],
+[-15,9],
+[16,0]
+],
+
+[
+[-16,-7],
+[-5,-7],
+[16,0],
+[-5,7],
+[-16,7]
+],
+
+[
+[-17,-3],
+[17,0],
+[-17,3]
+],
+
+[
+[-12,-11],
+[5,-11],
+[16,0],
+[5,11],
+[-12,11]
+],
+
+[
+[-15,-10],
+[0,-5],
+[15,-10],
+[9,0],
+[15,10],
+[0,5],
+[-15,10]
+],
+
+[
+[-15,-11],
+[4,-5],
+[16,0],
+[4,5],
+[-15,11],
+[-8,0]
+],
+
+[
+[-17,-6],
+[0,-10],
+[17,0],
+[0,10],
+[-17,6]
+],
+
+[
+[-14,0],
+[0,-11],
+[14,0],
+[0,11]
+],
+
+[
+[-17,-8],
+[-4,-8],
+[17,0],
+[-4,8],
+[-17,8],
+[-8,0]
+],
+
+[
+[-16,-10],
+[4,-10],
+[17,0],
+[4,10],
+[-16,10],
+[-7,0]
+],
+
+[
+[-17,-6],
+[-6,-11],
+[5,-5],
+[17,0],
+[5,5],
+[-6,11],
+[-17,6],
+[-9,0]
+],
+
+[
+[-15,-10],
+[0,-10],
+[16,0],
+[0,10],
+[-15,10],
+[-6,0]
+],
+
+[
+[-17,-5],
+[-5,-10],
+[17,0],
+[-5,10],
+[-17,5],
+[-8,0]
+],
+
+[
+[-15,-11],
+[5,-5],
+[16,0],
+[5,5],
+[-15,11],
+[-8,0]
+],
+
+[
+[-17,0],
+[-7,-11],
+[4,-5],
+[17,0],
+[4,5],
+[-7,11]
+],
+
+[
+[-16,-10],
+[0,-5],
+[16,-10],
+[8,0],
+[16,10],
+[0,5],
+[-16,10],
+[-8,0]
+],
+
+[
+[0,-18],
+[9,-16],
+[16,-9],
+[18,0],
+[16,9],
+[9,16],
+[0,18],
+[-9,16],
+[-16,9],
+[-18,0],
+[-16,-9],
+[-9,-16]
+],
+
+[
+[-18,0],
+[-10,-11],
+[0,-6],
+[10,-11],
+[18,0],
+[10,11],
+[0,6],
+[-10,11]
+],
+
+[
+[-18,-6],
+[-7,-11],
+[5,-5],
+[18,0],
+[5,5],
+[-7,11],
+[-18,6],
+[-10,0]
+],
+
+[
+[-18,0],
+[-9,-12],
+[9,-12],
+[18,0],
+[9,12],
+[-9,12]
+]
+
+];
+
+
+/* =====================================================
+   CUSTOM
+===================================================== */
+
+let customSides = 6;
+let customSharp = .5;
+let customScale = 1;
+let customRotation = 0;
+let customColor = "#00ffcc";
+
+
+function drawCustomIcon(context,scale=1){
+
+const outer =
+18 *
+customScale *
+scale;
+
+const inner =
+outer *
+customSharp;
+
+context.beginPath();
+
+for(
+let i=0;
+i<customSides*2;
+i++
+){
+
+const angle =
+customRotation *
+Math.PI/180 +
+i *
+Math.PI /
+customSides -
+Math.PI/2;
+
+const radius =
+i%2===0
+? outer
+: inner;
+
+const x =
+Math.cos(angle) *
+radius;
+
+const y =
+Math.sin(angle) *
+radius;
+
+if(i===0){
+context.moveTo(x,y);
+}else{
+context.lineTo(x,y);
+}
+
+}
+
+context.closePath();
+context.fill();
+context.stroke();
+
+}
+
+
+/* =====================================================
+   DRAW SHAPE
+===================================================== */
+
+function drawWaveShape(
+context,
+type,
+scale=1
+){
+
+const points =
+waveShapes[type-1] ||
+waveShapes[0];
+
+context.beginPath();
+
+context.moveTo(
+points[0][0]*scale,
+points[0][1]*scale
+);
+
+for(
+let i=1;
+i<points.length;
+i++
+){
+
+context.lineTo(
+points[i][0]*scale,
+points[i][1]*scale
+);
+
+}
+
+context.closePath();
+context.fill();
+context.stroke();
+
+}
+
+
+/* =====================================================
+   ICON PREVIEW
+===================================================== */
+
+function drawPreview(context,type){
+
+context.translate(20,20);
+
+context.fillStyle="#00ffcc";
+context.strokeStyle="#ffffff";
+context.lineWidth=1;
+
+if(type===20){
+
+drawCustomIcon(
+context,
+.65
+);
+
+}else{
+
+drawWaveShape(
+context,
+type,
+.72
+);
+
+}
+
+}
+
+
+/* =====================================================
+   ICON BUTTONS
+===================================================== */
+
+const selector =
+document.getElementById(
+"waveSelector"
+);
+
+
+for(
+let i=1;
+i<=20;
+i++
+){
+
+const button =
+document.createElement("button");
+
+button.className =
+"icon-btn";
+
+if(i===1){
+button.classList.add("active");
+}
+
+const miniCanvas =
+document.createElement("canvas");
+
+miniCanvas.width=40;
+miniCanvas.height=40;
+
+const miniCtx =
+miniCanvas.getContext("2d");
+
+drawPreview(
+miniCtx,
+i
+);
+
+button.appendChild(
+miniCanvas
+);
+
+const number =
+document.createElement("span");
+
+number.className =
+"icon-number";
+
+number.innerText=i;
+
+button.appendChild(
+number
+);
+
+button.onclick =
+function(){
+
+currentWaveType=i;
+
+document
+.querySelectorAll(".icon-btn")
+.forEach(
+btn =>
+btn.classList
+.remove("active")
+);
+
+button.classList.add("active");
+
+};
+
+if(i===20){
+
+button.ondblclick =
+function(){
+
+currentWaveType=20;
+
+document
+.getElementById("custom-panel")
+.style.display="block";
+
+};
+
+}
+
+selector.appendChild(
+button
+);
+
+}
+
+
+/* =====================================================
+   TRAIL UPDATE
+===================================================== */
+
+function addTrailPoint(){
+
+trailPoints.push({
+x:waveX,
+y:waveY
+});
+
+if(
+trailPoints.length >
+TRAIL_LENGTH
+){
+
+trailPoints.shift();
+
+}
+
+}
+
+
+function updateTrail(dt){
+
+const angle =
+isMiniWave
+? MINI_ANGLE
+: NORMAL_ANGLE;
+
+const verticalMove =
+(
+isMiniWave
+? 7
+: 5.5
+)
+*
+gameSpeed
+*
+dt;
+
+const horizontalMove =
+Math.abs(
+verticalMove /
+Math.tan(angle)
+);
+
+for(
+let i=0;
+i<trailPoints.length;
+i++
+){
+
+trailPoints[i].x -=
+horizontalMove;
+
+}
+
+while(
+trailPoints.length &&
+trailPoints[0].x <
+TRAIL_REMOVE_X
+){
+
+trailPoints.shift();
+
+}
+
+while(
+trailPoints.length >
+TRAIL_LENGTH
+){
+
+trailPoints.shift();
+
+}
+
+}
+
+
+/* =====================================================
+   ZOINK STYLE WAVE TRAIL
+===================================================== */
+
+function drawTrail(){
+
+if(
+trailPoints.length < 2
+){
+return;
+}
+
+ctx.save();
+
+ctx.beginPath();
+
+ctx.moveTo(
+trailPoints[0].x,
+trailPoints[0].y
+);
+
+for(
+let i=1;
+i<trailPoints.length;
+i++
+){
+
+ctx.lineTo(
+trailPoints[i].x,
+trailPoints[i].y
+);
+
+}
+
+
+/*
+   SOLID WAVE TRAIL
+
+   Normal = 8px
+   Mini   = 6px
+
+   Góc nhọn:
+   lineJoin = miter
+
+   Đầu trail:
+   lineCap = butt
+
+   Không glow
+   Không gradient
+*/
+
+ctx.strokeStyle =
+playerColor;
+
+ctx.globalAlpha = 1;
+
+ctx.lineWidth =
+isMiniWave
+? 6
+: 8;
+
+ctx.lineJoin =
+"miter";
+
+ctx.lineCap =
+"butt";
+
+ctx.miterLimit =
+20;
+
+ctx.shadowBlur =
+0;
+
+ctx.shadowColor =
+"transparent";
+
+ctx.stroke();
+
+ctx.restore();
+
+}
+
+
+/* =====================================================
+   GAME LOOP
+===================================================== */
+
+let lastFrame =
+performance.now();
+
+
+function gameLoop(now){
+
+let dt =
+(
+now-lastFrame
+) / 16.6667;
+
+lastFrame=now;
+
+if(dt>2){
+dt=2;
+}
+
+
+/*
+   3 phím cùng điều khiển Wave
+*/
+
+let movingUp =
+isPressing1 ||
+isPressing2 ||
+isPressing3;
+
+if(reverseGravity){
+movingUp=!movingUp;
+}
+
+const moveSpeed =
+(
+isMiniWave
+? 7
+: 5.5
+)
+*
+gameSpeed;
+
+if(movingUp){
+
+waveY -=
+moveSpeed*dt;
+
+}else{
+
+waveY +=
+moveSpeed*dt;
+
+}
+
+const border =
+isMiniWave
+? 14
+: 22;
+
+if(waveY<border){
+waveY=border;
+}
+
+if(
+waveY >
+HEIGHT-border
+){
+
+waveY=
+HEIGHT-border;
+
+}
+
+updateTrail(dt);
+
+addTrailPoint();
+
+
+/*
+   Background
+*/
+
+ctx.fillStyle="#03060b";
+
+ctx.fillRect(
+0,
+0,
+WIDTH,
+HEIGHT
+);
+
+
+/*
+   Trail
+*/
+
+drawTrail();
+
+
+/*
+   Wave icon
+*/
+
+ctx.save();
+
+ctx.translate(
+waveX,
+waveY
+);
+
+if(
+currentWaveType===17
+){
+
+ctx.rotate(
+now*0.003
+);
+
+}else{
+
+ctx.rotate(
+movingUp
+? -(
+isMiniWave
+? MINI_ANGLE
+: NORMAL_ANGLE
+)
+: (
+isMiniWave
+? MINI_ANGLE
+: NORMAL_ANGLE
+)
+);
+
+}
+
+const iconScale =
+isMiniWave
+? .62
+: 1;
+
+ctx.fillStyle =
+currentWaveType===20
+? customColor
+: playerColor;
+
+ctx.strokeStyle="#ffffff";
+
+ctx.lineWidth =
+isMiniWave
+? 1
+: 1.5;
+
+ctx.shadowBlur=0;
+
+if(
+currentWaveType===20
+){
+
+drawCustomIcon(
+ctx,
+iconScale
+);
+
+}else{
+
+drawWaveShape(
+ctx,
+currentWaveType,
+iconScale
+);
+
+}
+
+ctx.restore();
+
+requestAnimationFrame(
+gameLoop
+);
+
+}
+
+requestAnimationFrame(
+gameLoop
+);
+
+
+/* =====================================================
+   KEY DOWN
+===================================================== */
+
+window.addEventListener(
+"keydown",
+function(e){
+
+if(
+listeningSlot!==null
+){
+
+e.preventDefault();
+
+if(
+listeningSlot===1
+){
+
+key1=e.code;
+
+}else if(
+listeningSlot===2
+){
+
+key2=e.code;
+
+}else if(
+listeningSlot===3
+){
+
+key3=e.code;
+
+}
+
+document
+.getElementById(
+"bindBtn"+
+listeningSlot
+)
+.innerText =
+formatKey(e.code);
+
+document
+.getElementById(
+"bindBtn"+
+listeningSlot
+)
+.classList
+.remove("listening");
+
+listeningSlot=null;
+
+return;
+
+}
+
+
+if(
+e.code===key1 &&
+!isPressing1
+){
+
+e.preventDefault();
+
+isPressing1=true;
+
+registerClick();
+
+}
+
+
+if(
+e.code===key2 &&
+!isPressing2
+){
+
+e.preventDefault();
+
+isPressing2=true;
+
+registerClick();
+
+}
+
+
+if(
+e.code===key3 &&
+!isPressing3
+){
+
+e.preventDefault();
+
+isPressing3=true;
+
+registerClick();
+
+}
+
+}
+);
+
+
+/* =====================================================
+   KEY UP
+===================================================== */
+
+window.addEventListener(
+"keyup",
+function(e){
+
+if(
+e.code===key1
+){
+isPressing1=false;
+}
+
+if(
+e.code===key2
+){
+isPressing2=false;
+}
+
+if(
+e.code===key3
+){
+isPressing3=false;
+}
+
+});
+
+
+/* =====================================================
+   FORMAT KEY
+===================================================== */
+
+function formatKey(code){
+
+const names={
+
+Space:"SPACE",
+
+ArrowUp:"ARROW UP",
+
+ArrowDown:"ARROW DOWN",
+
+ArrowLeft:"ARROW LEFT",
+
+ArrowRight:"ARROW RIGHT",
+
+ShiftLeft:"LEFT SHIFT",
+
+ShiftRight:"RIGHT SHIFT",
+
+ControlLeft:"LEFT CTRL",
+
+ControlRight:"RIGHT CTRL",
+
+Enter:"ENTER",
+
+Escape:"ESC"
+
+};
+
+if(names[code]){
+return names[code];
+}
+
+return code
+.replace("Key","")
+.replace("Digit","")
+.toUpperCase();
+
+}
+
+
+/* =====================================================
+   CLICK / CPS
+===================================================== */
+
+function registerClick(){
+
+totalClicks++;
+
+document
+.getElementById(
+"clicks-display"
+)
+.innerText=
+totalClicks;
+
+clickTimestamps.push(
+performance.now()
+);
+
+}
+
+
+setInterval(
+function(){
+
+const now =
+performance.now();
+
+clickTimestamps =
+clickTimestamps.filter(
+time =>
+now-time<1000
+);
+
+document
+.getElementById(
+"cps-display"
+)
+.innerText =
+clickTimestamps.length
+.toFixed(1);
+
+},
+100
+);
+
+
+/* =====================================================
+   COLOR
+===================================================== */
+
+document
+.getElementById(
+"colorPicker"
+)
+.addEventListener(
+"input",
+function(){
+
+playerColor=
+this.value;
+
+document
+.getElementById(
+"hexCode"
+)
+.innerText=
+this.value;
+
+}
+);
+
+
+/* =====================================================
+   SIZE
+===================================================== */
+
+function setWaveSize(size){
+
+isMiniWave =
+size==="mini";
+
+document
+.getElementById(
+"sizeNormalBtn"
+)
+.classList
+.toggle(
+"active",
+!isMiniWave
+);
+
+document
+.getElementById(
+"sizeMiniBtn"
+)
+.classList
+.toggle(
+"active",
+isMiniWave
+);
+
+}
+
+
+/* =====================================================
+   GRAVITY
+===================================================== */
+
+function setGravity(mode){
+
+reverseGravity =
+mode==="reverse";
+
+document
+.getElementById(
+"gravityNormalBtn"
+)
+.classList
+.toggle(
+"active",
+!reverseGravity
+);
+
+document
+.getElementById(
+"gravityReverseBtn"
+)
+.classList
+.toggle(
+"active",
+reverseGravity
+);
+
+}
+
+
+/* =====================================================
+   SPEED
+===================================================== */
+
+function setSpeed(
+value,
+button
+){
+
+gameSpeed=value;
+
+document
+.getElementById(
+"speedButtons"
+)
+.querySelectorAll(
+".key-bind-btn"
+)
+.forEach(
+btn =>
+btn.classList
+.remove("active")
+);
+
+button.classList.add(
+"active"
+);
+
+}
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+function openSetting(){
+
+document
+.getElementById(
+"setting-modal"
+)
+.style.display="flex";
+
+}
+
+
+function closeSetting(){
+
+if(
+listeningSlot!==null
+){
+
+document
+.getElementById(
+"bindBtn"+
+listeningSlot
+)
+.classList
+.remove("listening");
+
+listeningSlot=null;
+
+}
+
+document
+.getElementById(
+"setting-modal"
+)
+.style.display="none";
+
+}
+
+
+function startListening(slot){
+
+if(
+listeningSlot!==null
+){
+
+document
+.getElementById(
+"bindBtn"+
+listeningSlot
+)
+.classList
+.remove("listening");
+
+}
+
+listeningSlot=slot;
+
+const button =
+document.getElementById(
+"bindBtn"+slot
+);
+
+button.classList.add(
+"listening"
+);
+
+button.innerText="...";
+
+}
+
+
+/* =====================================================
+   CUSTOM
+===================================================== */
+
+function closeCustom(){
+
+document
+.getElementById(
+"custom-panel"
+)
+.style.display="none";
+
+}
+
+
+document
+.getElementById(
+"sideRange"
+)
+.addEventListener(
+"input",
+function(){
+
+customSides=
+Number(this.value);
+
+document
+.getElementById(
+"sideText"
+)
+.innerText=
+this.value;
+
+}
+);
+
+
+document
+.getElementById(
+"sharpRange"
+)
+.addEventListener(
+"input",
+function(){
+
+customSharp=
+Number(this.value)/100;
+
+document
+.getElementById(
+"sharpText"
+)
+.innerText=
+this.value;
+
+}
+);
+
+
+document
+.getElementById(
+"sizeRange"
+)
+.addEventListener(
+"input",
+function(){
+
+customScale=
+Number(this.value)/100;
+
+document
+.getElementById(
+"sizeText"
+)
+.innerText=
+customScale.toFixed(1);
+
+}
+);
+
+
+document
+.getElementById(
+"rotateRange"
+)
+.addEventListener(
+"input",
+function(){
+
+customRotation=
+Number(this.value);
+
+document
+.getElementById(
+"rotateText"
+)
+.innerText=
+this.value+"°";
+
+}
+);
+
+
+document
+.getElementById(
+"customColor"
+)
+.addEventListener(
+"input",
+function(){
+
+customColor=
+this.value;
+
+}
+);
+
+
+function resetCustom(){
+
+customSides=6;
+customSharp=.5;
+customScale=1;
+customRotation=0;
+customColor="#00ffcc";
+
+document.getElementById(
+"sideRange"
+).value=6;
+
+document.getElementById(
+"sharpRange"
+).value=50;
+
+document.getElementById(
+"sizeRange"
+).value=100;
+
+document.getElementById(
+"rotateRange"
+).value=0;
+
+document.getElementById(
+"customColor"
+).value="#00ffcc";
+
+document.getElementById(
+"sideText"
+).innerText=6;
+
+document.getElementById(
+"sharpText"
+).innerText=50;
+
+document.getElementById(
+"sizeText"
+).innerText="1.0";
+
+document.getElementById(
+"rotateText"
+).innerText="0°";
+
+}
+
+</script>
+
+</body>
+</html>
